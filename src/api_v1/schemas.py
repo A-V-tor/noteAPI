@@ -21,11 +21,20 @@ class AuthUserSchema(BaseModel):
     password: str
 
 
+class TagSchema(BaseModel):
+    id: int
+    title: str
+
+    class Config:
+        from_attributes = True
+
+
 class AllNotesSchema(BaseModel):
     id: int
     user_id: int
     title: str
     text: str
+    tags: list[TagSchema]
     created_at: datetime
     updated_at: datetime
 
