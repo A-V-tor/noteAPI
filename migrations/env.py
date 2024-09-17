@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from src.database.base import Base
 from config import DatabaseConfig
 
+from src.database.models import User, Tag, Note
 from alembic import context
 
 # this is the Alembic Config object, which provides

@@ -16,7 +16,9 @@ class DatabaseConfig:
 
 
 class Config:
-    db_url = DatabaseConfig.db_url
+    db_url: str = DatabaseConfig.db_url
+    secret_key: str = os.getenv("SECRET_KEY")
+    algorithm_hash: str = os.getenv("ALGORITHM_HASH")
 
 
 settings = Config()
