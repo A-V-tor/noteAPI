@@ -1,12 +1,13 @@
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
+from sqlalchemy.util import await_fallback
 
+from config import LOGGER
 from src.database.models import TelegramUser
 from src.telegram.keyboards.base import main_kb, to_main_menu
 from src.telegram.keyboards.notes import approve_or_cancel_kb
 from src.telegram.states import AuthDataState, NewNoteState, SearchNoteState
 from src.tools import ManagerAPI, validate_auth_parameters
-from config import LOGGER
 
 router = Router(name='notes')
 manager_api = ManagerAPI()
@@ -37,7 +38,9 @@ async def request_to_api(message: types.Message, state: FSMContext):
         auth_token = res['token'].split(' ')[-1]
         await TelegramUser.new_jwt_token(tg_id, auth_token)
         msg = 'Вы авторизованы'
-    await message.answer(msg, parse_mode='HTML')
+    await message.answer(
+        msg, parse_mode='HTML', reply_markup=await to_main_menu()
+    )
 
 
 @router.callback_query(F.data == 'logout')
@@ -70,7 +73,11 @@ async def all_notes(callback: types.CallbackQuery):
         msg = note_msg
 
     for x in range(0, len(msg), 4096):
-        await callback.message.answer(msg[x : x + 4096], parse_mode='HTML', reply_markup=await to_main_menu())
+        await callback.message.answer(
+            msg[x : x + 4096],
+            parse_mode='HTML',
+            reply_markup=await to_main_menu(),
+        )
 
 
 @router.callback_query(F.data == 'new-note')
@@ -188,4 +195,8 @@ async def tags_for_search(message: types.Message):
         msg = note_msg
 
     for x in range(0, len(msg), 4096):
-        await message.answer(msg[x : x + 4096], parse_mode='HTML', reply_markup= await to_main_menu())
+        await message.answer(
+            msg[x : x + 4096],
+            parse_mode='HTML',
+            reply_markup=await to_main_menu(),
+        )

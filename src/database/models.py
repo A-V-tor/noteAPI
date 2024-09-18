@@ -22,7 +22,7 @@ from sqlalchemy import (
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
 
-from config import settings, LOGGER
+from config import LOGGER, settings
 from src.database.base import Base, async_session_factory
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')

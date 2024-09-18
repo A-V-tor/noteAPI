@@ -8,7 +8,7 @@ from jwt.exceptions import (
     InvalidSignatureError,
 )
 
-from config import settings, LOGGER
+from config import LOGGER, settings
 from src.database.models import TelegramUser
 
 

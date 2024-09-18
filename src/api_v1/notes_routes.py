@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
+from fastapi_limiter.depends import RateLimiter
 
 from config import LOGGER
 from src.api_v1.schemas import AllNotesSchema, EditNoteBody, NewNoteSchema
 from src.auth import JWTBearer
-from src.database.models import Note, Tag, User
+from src.database.models import Note, Tag
 
 router = APIRouter(prefix='/api/v1')
 
@@ -21,7 +22,10 @@ async def get_current_user_id(request: Request):
 
 @router.get(
     '/notes',
-    dependencies=[Depends(JWTBearer())],
+    dependencies=[
+        Depends(JWTBearer()),
+        Depends(RateLimiter(times=2, seconds=5)),
+    ],
     tags=['notes'],
     response_model=list[AllNotesSchema],
 )
@@ -33,7 +37,12 @@ async def get_notes(user_id: int = Depends(get_current_user_id)):
 
 
 @router.post(
-    '/note/create', dependencies=[Depends(JWTBearer())], tags=['notes']
+    '/note/create',
+    dependencies=[
+        Depends(JWTBearer()),
+        Depends(RateLimiter(times=2, seconds=5)),
+    ],
+    tags=['notes'],
 )
 async def create_note(
     note: NewNoteSchema, user_id: int = Depends(get_current_user_id)
@@ -49,7 +58,10 @@ async def create_note(
 
 @router.delete(
     '/note/delete/{note_id}',
-    dependencies=[Depends(JWTBearer())],
+    dependencies=[
+        Depends(JWTBearer()),
+        Depends(RateLimiter(times=2, seconds=5)),
+    ],
     tags=['notes'],
 )
 async def delete_note(
@@ -62,7 +74,12 @@ async def delete_note(
 
 
 @router.put(
-    '/note/edit/{note_id}', dependencies=[Depends(JWTBearer())], tags=['notes']
+    '/note/edit/{note_id}',
+    dependencies=[
+        Depends(JWTBearer()),
+        Depends(RateLimiter(times=2, seconds=5)),
+    ],
+    tags=['notes'],
 )
 async def edit_note(
     note_id: int,
@@ -88,7 +105,10 @@ async def edit_note(
 
 @router.put(
     '/note/edit-tags/{note_id}',
-    dependencies=[Depends(JWTBearer())],
+    dependencies=[
+        Depends(JWTBearer()),
+        Depends(RateLimiter(times=2, seconds=5)),
+    ],
     tags=['notes'],
 )
 async def edit_tags_note(
@@ -104,6 +124,8 @@ async def edit_tags_note(
         )
 
     await Note.edit_tags_note(note_id, tags)
-    LOGGER.info(f'Для заметки {note_id} заданы новые теги {tags} пользователем {user_id}')
+    LOGGER.info(
+        f'Для заметки {note_id} заданы новые теги {tags} пользователем {user_id}'
+    )
 
     return {'status': True}

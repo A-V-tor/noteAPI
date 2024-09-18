@@ -14,5 +14,3 @@ async def approve_or_cancel_kb(only_cansel: bool = False):
         keyboard.row(approve_bt, cancel_kb)
 
     return keyboard.as_markup()
-
-

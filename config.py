@@ -1,9 +1,8 @@
 import os
-
 from datetime import datetime
+
 from dotenv import load_dotenv
 from loguru import logger
-
 
 load_dotenv()
 
@@ -37,7 +36,7 @@ class LoggerConfig:
             backtrace=True,
             diagnose=True,
             rotation='00:00',
-            retention='10 days'
+            retention='10 days',
         )
 
 
