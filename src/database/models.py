@@ -22,7 +22,7 @@ from sqlalchemy import (
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
 
-from config import settings
+from config import settings, LOGGER
 from src.database.base import Base, async_session_factory
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -77,7 +77,8 @@ class User(Base):
             try:
                 await session.commit()
                 return new_user
-            except IntegrityError:
+            except IntegrityError as e:
+                LOGGER.exception(e)
                 await session.rollback()
                 return None
 
@@ -166,6 +167,7 @@ class Note(Base):
                 await session.commit()
                 return note
             except IntegrityError as e:
+                LOGGER.exception(e)
                 await session.rollback()
                 return None
 
@@ -282,7 +284,8 @@ class TelegramUser(Base):
             try:
                 await session.commit()
                 return new_user
-            except IntegrityError:
+            except IntegrityError as e:
+                LOGGER.exception(e)
                 await session.rollback()
                 return None
 

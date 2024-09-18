@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 
+from config import LOGGER
 from src.api_v1.schemas import AllNotesSchema, EditNoteBody, NewNoteSchema
 from src.auth import JWTBearer
 from src.database.models import Note, Tag, User
@@ -26,6 +27,7 @@ async def get_current_user_id(request: Request):
 )
 async def get_notes(user_id: int = Depends(get_current_user_id)):
     notes = await Note.get_all_notes(user_id)
+    LOGGER.info(f'Запрос заметок для пользователя: {user_id}')
 
     return [AllNotesSchema.model_validate(note) for note in notes]
 
@@ -38,6 +40,8 @@ async def create_note(
 ):
     tags = await Tag.get_tags_by_title(note.tags)
     new_note = await Note.create_note(user_id, note.title, note.text, tags)
+
+    LOGGER.info(f'Создана новая заметка: {new_note} пользователем {user_id}')
 
     if new_note:
         return {'status': True}
@@ -52,6 +56,7 @@ async def delete_note(
     note_id: int, user_id: int = Depends(get_current_user_id)
 ):
     await Note.delete_note(note_id)
+    LOGGER.info(f'Заметка {note_id} удалена пользователем {user_id}')
 
     return {'status': True}
 
@@ -76,6 +81,7 @@ async def edit_note(
         )
 
     await Note.edit_note(note_id, text)
+    LOGGER.info(f'Заметка {note_id} отредактирована пользователем {user_id}')
 
     return {'status': True}
 
@@ -98,5 +104,6 @@ async def edit_tags_note(
         )
 
     await Note.edit_tags_note(note_id, tags)
+    LOGGER.info(f'Для заметки {note_id} заданы новые теги {tags} пользователем {user_id}')
 
     return {'status': True}

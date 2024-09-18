@@ -8,7 +8,7 @@ from jwt.exceptions import (
     InvalidSignatureError,
 )
 
-from config import settings
+from config import settings, LOGGER
 from src.database.models import TelegramUser
 
 
@@ -20,7 +20,8 @@ def check_token(token: str):
         return (
             decoded_token if decoded_token['expires'] >= time.time() else None
         )
-    except (ExpiredSignatureError, InvalidSignatureError, DecodeError):
+    except (ExpiredSignatureError, InvalidSignatureError, DecodeError) as e:
+        LOGGER.exception(f'Токен {token} \n {e}')
         return {}
 
 
@@ -29,6 +30,7 @@ async def validate_auth_parameters(parameters: str):
         username, password = parameters.split('-')
         return username, password
     except ValueError:
+        LOGGER.exception(f'Неверный ввод: {parameters}')
         return 'Неверный ввод, должен быть в формате username - password: <code>admin - admin</code>'
 
 

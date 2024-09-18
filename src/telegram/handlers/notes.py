@@ -1,11 +1,12 @@
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 
-from src.database.models import TelegramUser, User
-from src.telegram.keyboards.base import main_kb
+from src.database.models import TelegramUser
+from src.telegram.keyboards.base import main_kb, to_main_menu
 from src.telegram.keyboards.notes import approve_or_cancel_kb
 from src.telegram.states import AuthDataState, NewNoteState, SearchNoteState
 from src.tools import ManagerAPI, validate_auth_parameters
+from config import LOGGER
 
 router = Router(name='notes')
 manager_api = ManagerAPI()
@@ -69,7 +70,7 @@ async def all_notes(callback: types.CallbackQuery):
         msg = note_msg
 
     for x in range(0, len(msg), 4096):
-        await callback.message.answer(msg[x : x + 4096], parse_mode='HTML')
+        await callback.message.answer(msg[x : x + 4096], parse_mode='HTML', reply_markup=await to_main_menu())
 
 
 @router.callback_query(F.data == 'new-note')
@@ -116,6 +117,7 @@ async def tags_for_note(message: types.Message, state: FSMContext):
         data.update({'tags': tags})
         await state.set_data(data)
     except ValueError:
+        LOGGER.exception(f'Передан неверный формат записи: {text}')
         await message.answer('Передан неверный формат записи')
         return
 
@@ -155,11 +157,12 @@ async def search_note_start_state(
 
 
 @router.message(SearchNoteState.tags)
-async def tags_for_search(message: types.Message, state: FSMContext):
+async def tags_for_search(message: types.Message):
     msg = 'Что-то пошло не так...'
     try:
         search_tags = message.text.split(',')
     except ValueError:
+        LOGGER.exception(f'Неверный формат ввода {message.text}')
         await message.answer(
             'Неверный формат ввода!',
             reply_markup=await approve_or_cancel_kb(True),
@@ -185,4 +188,4 @@ async def tags_for_search(message: types.Message, state: FSMContext):
         msg = note_msg
 
     for x in range(0, len(msg), 4096):
-        await message.answer(msg[x : x + 4096], parse_mode='HTML')
+        await message.answer(msg[x : x + 4096], parse_mode='HTML', reply_markup= await to_main_menu())

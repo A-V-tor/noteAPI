@@ -1,6 +1,9 @@
 import os
 
+from datetime import datetime
 from dotenv import load_dotenv
+from loguru import logger
+
 
 load_dotenv()
 
@@ -22,4 +25,21 @@ class Config:
     bot_token: str = os.getenv('BOT_TOKEN')
 
 
+class LoggerConfig:
+    logger = logger
+
+    def __init__(self) -> None:
+        current_date = datetime.now().strftime('%Y-%m-%d')
+        log_file = f'logs/{current_date}.log'
+
+        self.logger.add(
+            log_file,
+            backtrace=True,
+            diagnose=True,
+            rotation='00:00',
+            retention='10 days'
+        )
+
+
 settings = Config()
+LOGGER = LoggerConfig().logger

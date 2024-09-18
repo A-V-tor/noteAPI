@@ -1,14 +1,12 @@
 import asyncio
-import logging
-import sys
 
 from aiogram import Bot, Dispatcher
 
-from config import Config
+from config import LOGGER, settings
 from src.telegram.handlers.base import router as base_router
 from src.telegram.handlers.notes import router as notes_router
 
-token = Config.bot_token
+token = settings.bot_token
 
 
 async def main():
@@ -25,10 +23,6 @@ async def main():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(
-        level=logging.INFO,
-        stream=sys.stdout,
-        format='%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s',
-        datefmt='%Y-%m-%d,%H:%M:%S',
-    )
+    LOGGER.info('Бот запущен')
     asyncio.run(main())
+    LOGGER.info('Бот остановлен')

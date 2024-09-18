@@ -1,11 +1,13 @@
 from fastapi import APIRouter, HTTPException, status
 
+from config import LOGGER
 from src.api_v1.schemas import (
     AuthUserSchema,
     UserCreateSchema,
     UserResponseSchema,
 )
 from src.database.models import User
+
 
 router = APIRouter(prefix='/api/v1')
 
@@ -20,6 +22,7 @@ async def create_user(user: UserCreateSchema):
             detail='Username already registered',
         )
 
+    LOGGER.info(f'Создан пользователь {user.username} - {user.id}')
     return UserResponseSchema.model_validate(user)
 
 
@@ -31,5 +34,6 @@ async def login(user: AuthUserSchema):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail='User not found'
         )
+    LOGGER.info(f'Вход в систему: {user.username} - {user.id}')
 
     return {'token': f'Bearer {token}'}

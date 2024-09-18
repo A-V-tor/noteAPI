@@ -27,3 +27,12 @@ async def main_kb(user: TelegramUser):
         )
 
     return keyboard.as_markup()
+
+
+async def to_main_menu():
+    keyboard = InlineKeyboardBuilder()
+
+    to_main_kb = InlineKeyboardButton(text='меню', callback_data='cancel')
+    keyboard.row(to_main_kb)
+
+    return keyboard.as_markup()
